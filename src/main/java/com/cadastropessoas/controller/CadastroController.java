@@ -35,13 +35,19 @@ public class CadastroController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<PessoaDto> buscarPeloId(@PathVariable Long id) throws IdNaoEncontradoException {
+    public ResponseEntity<PessoaDto> buscarPeloId(@PathVariable Long id) {
 
         Optional<PessoaDto> pessoaDtoOptional = repository.findById(id);
-        PessoaDto pessoaDto = pessoaDtoOptional.orElseThrow(() -> new IdNaoEncontradoException("Pessoa não encontrada com id: " + id));
+
+        if (!pessoaDtoOptional.isPresent()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        PessoaDto pessoaDto = pessoaDtoOptional.get();
 
         return ResponseEntity.ok().body(pessoaDto);
     }
+
 
     @PostMapping
     public ResponseEntity<PessoaDto> create(@RequestBody @Valid PessoaDto pessoaDto) throws IdInvalidoException {
@@ -50,7 +56,8 @@ public class CadastroController {
             throw new IdInvalidoException("O id não deve ser enviado na criação.");
         }
 
-        PessoaDto pessoaDtoSalva = repository.save(pessoaDto);
+
+        PessoaDto pessoaDtoSalva = repository.saveAndFlush(pessoaDto);
         return ResponseEntity.ok().body(pessoaDtoSalva);
     }
 

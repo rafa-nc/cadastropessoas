@@ -9,7 +9,9 @@ import java.util.Optional;
 
 @Repository
 public interface PessoaRepository extends JpaRepository<PessoaDto, Long> {
-    Optional<PessoaDto> findById(Long id);
+    ;
     List<PessoaDto> findByNome(String nome);
+
+    Optional<PessoaDto> findById(Long id);
 
 }
