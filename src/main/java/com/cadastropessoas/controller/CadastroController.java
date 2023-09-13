@@ -33,7 +33,6 @@ public class CadastroController {
         } else {
             pessoas = repository.findByNome(nome);
         }
-
         return ResponseEntity.ok().body(pessoas);
     }
 
@@ -77,9 +76,11 @@ public class CadastroController {
 
     //Limpar dados
     @DeleteMapping(value = "/deleteAll")
-    public void deleteAll() {
+    public ResponseEntity<String> deleteAll() {
 
         repository.deleteAll();
+
+        return ResponseEntity.ok("Todos os registros foram excluídos.");
 
     }
 
