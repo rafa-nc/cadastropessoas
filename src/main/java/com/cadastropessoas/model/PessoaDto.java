@@ -7,7 +7,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 
 @Entity
-public class Pessoa {
+public class PessoaDto {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -16,7 +16,7 @@ public class Pessoa {
     private String cpf;
     private int idade;
 
-    public Pessoa() {
+    public PessoaDto() {
     }
 
     public String getNome() {

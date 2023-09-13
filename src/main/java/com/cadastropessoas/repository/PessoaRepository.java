@@ -1,12 +1,15 @@
 package com.cadastropessoas.repository;
 
-import com.cadastropessoas.model.Pessoa;
+import com.cadastropessoas.model.PessoaDto;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
-public interface PessoaRepository extends JpaRepository<Pessoa, Long> {
-    List<Pessoa> findByNome(String nome);
+public interface PessoaRepository extends JpaRepository<PessoaDto, Long> {
+    Optional<PessoaDto> findById(Long id);
+    List<PessoaDto> findByNome(String nome);
+
 }

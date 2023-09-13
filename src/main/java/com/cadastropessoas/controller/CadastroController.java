@@ -1,7 +1,10 @@
 package com.cadastropessoas.controller;
 
 
-import com.cadastropessoas.model.Pessoa;
+
+import com.cadastropessoas.exceptions.IdInvalidoException;
+import com.cadastropessoas.exceptions.IdNaoEncontradoException;
+import com.cadastropessoas.model.PessoaDto;
 import com.cadastropessoas.repository.PessoaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -19,47 +22,61 @@ public class CadastroController {
     private PessoaRepository repository;
 
     @GetMapping
-    public List<Pessoa> lista(String nome) {
+    public ResponseEntity<List<PessoaDto>> lista(@RequestParam(required = false) String nome) {
 
-        return repository.findAll();
+        List<PessoaDto> pessoas;
+        if (nome == null) {
+            pessoas = repository.findAll();
+        } else {
+            pessoas = repository.findByNome(nome);
+        }
+
+        return ResponseEntity.ok().body(pessoas);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<PessoaDto> buscarPeloId(@PathVariable Long id) throws IdNaoEncontradoException {
+
+        Optional<PessoaDto> pessoaDtoOptional = repository.findById(id);
+        PessoaDto pessoaDto = pessoaDtoOptional.orElseThrow(() -> new IdNaoEncontradoException("Pessoa não encontrada com id: " + id));
+
+        return ResponseEntity.ok().body(pessoaDto);
     }
 
     @PostMapping
-    public void create(@RequestBody Pessoa pessoa) {
+    public ResponseEntity<PessoaDto> create(@RequestBody @Valid PessoaDto pessoaDto) throws IdInvalidoException {
 
-        repository.save(pessoa);
+        if (pessoaDto.getId() != null) {
+            throw new IdInvalidoException("O id não deve ser enviado na criação.");
+        }
+
+        PessoaDto pessoaDtoSalva = repository.save(pessoaDto);
+        return ResponseEntity.ok().body(pessoaDtoSalva);
     }
 
     @DeleteMapping(value = "/{id}")
-    public ResponseEntity<?> delete(@PathVariable Long id) {
-        Optional<Pessoa> optional = repository.findById(id);
-        if (optional.isPresent()) {
-            repository.deleteById(id);
-            return ResponseEntity.ok().build();
-        }
-        return ResponseEntity.notFound().build();
+    public ResponseEntity<PessoaDto> deletarPessoa(@PathVariable Long id) throws IdNaoEncontradoException {
+
+
+        Optional<PessoaDto> pessoaDtoOptional = repository.findById(id);
+        PessoaDto pessoaDto = pessoaDtoOptional.orElseThrow(() -> new IdNaoEncontradoException("Pessoa não encontrada com id: " + id));
+
+        repository.deleteById(id);
+        return ResponseEntity.ok().body(pessoaDto);
     }
 
     @PutMapping(value = "/{id}")
-    public ResponseEntity update(@PathVariable("id") Long id, @RequestBody @Valid Pessoa pessoa) {
-//        Optional<Pessoa> optional = repository.findById(id);
-//        if (optional.isPresent()) {
-//            pessoa.setId(id);
-//            repository.save(pessoa);
-//            return ResponseEntity.ok().build();
-//        }
-//        return ResponseEntity.notFound().build();
-//    }
+    public ResponseEntity updatePessoa(@PathVariable("id") Long id, @RequestBody @Valid PessoaDto pessoaDto) throws IdNaoEncontradoException {
 
-        return repository.findById(id)
-                .map(record -> {
-                    record.setNome(pessoa.getNome());
-                    record.setCpf(pessoa.getCpf());
-                    record.setIdade(pessoa.getIdade());
-                    Pessoa updated = repository.save(record);
-                    return ResponseEntity.ok().body(updated);
-                }).orElse(ResponseEntity.notFound().build());
+        Optional<PessoaDto> pessoaDtoOptional = repository.findById(id);
+        PessoaDto pessoaDtoAtual = pessoaDtoOptional.orElseThrow(() -> new IdNaoEncontradoException("Pessoa não encontrada com id: " + id));
 
+        pessoaDtoAtual.setNome(pessoaDto.getNome());
+        pessoaDtoAtual.setCpf(pessoaDto.getCpf());
+        pessoaDtoAtual.setIdade(pessoaDto.getIdade());
+
+        repository.save(pessoaDtoAtual);
+        return ResponseEntity.ok().build();
     }
 
 }
