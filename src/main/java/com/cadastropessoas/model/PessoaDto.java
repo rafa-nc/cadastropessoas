@@ -1,19 +1,13 @@
 package com.cadastropessoas.model;
 
 
-import com.cadastropessoas.repository.PessoaRepository;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+import lombok.Data;
 
-import java.util.Optional;
+import java.util.Objects;
 
-@Setter
-@Getter
+@Data
 @Entity
 public class PessoaDto {
 
@@ -24,33 +18,23 @@ public class PessoaDto {
     private String cpf;
     private int idade;
 
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    private GeneroEnum genero;
+
     public PessoaDto() {
     }
 
     @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((id == null) ? 0 : id.hashCode());
-        return result;
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        PessoaDto pessoa = (PessoaDto) o;
+        return Objects.equals(id, pessoa.id);
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        PessoaDto other = (PessoaDto) obj;
-        if (id == null) {
-            if (other.id != null)
-                return false;
-        } else if (!id.equals(other.id))
-            return false;
-        return true;
-
-
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }

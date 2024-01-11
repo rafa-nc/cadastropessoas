@@ -21,6 +21,9 @@ public class CadastroController {
     @Autowired
     private PessoaRepository repository;
 
+
+
+    // Listar todos
     @GetMapping
     public ResponseEntity<List<PessoaDto>> lista(@RequestParam(required = false) String nome) {
 
@@ -30,10 +33,10 @@ public class CadastroController {
         } else {
             pessoas = repository.findByNome(nome);
         }
-
         return ResponseEntity.ok().body(pessoas);
     }
 
+    //Buscar por ID
     @GetMapping("/{id}")
     public ResponseEntity<PessoaDto> buscarPeloId(@PathVariable Long id) {
 
@@ -48,19 +51,18 @@ public class CadastroController {
         return ResponseEntity.ok().body(pessoaDto);
     }
 
-
+    //Criar PessoaDto
     @PostMapping
     public ResponseEntity<PessoaDto> create(@RequestBody @Valid PessoaDto pessoaDto) throws IdInvalidoException {
 
         if (pessoaDto.getId() != null) {
-            throw new IdInvalidoException("O id não deve ser enviado na criação.");
+            throw new IdInvalidoException("Este id não deve ser enviado na criação.");
         }
-
-
         PessoaDto pessoaDtoSalva = repository.saveAndFlush(pessoaDto);
         return ResponseEntity.ok().body(pessoaDtoSalva);
     }
 
+    //Deletar PessoaDto
     @DeleteMapping(value = "/{id}")
     public ResponseEntity<PessoaDto> deletarPessoa(@PathVariable Long id) throws IdNaoEncontradoException {
 
@@ -72,6 +74,17 @@ public class CadastroController {
         return ResponseEntity.ok().body(pessoaDto);
     }
 
+    //Limpar dados
+    @DeleteMapping(value = "/deleteAll")
+    public ResponseEntity<String> deleteAll() {
+
+        repository.deleteAll();
+
+        return ResponseEntity.ok("Todos os registros foram excluídos.");
+
+    }
+
+    //Atualizar PessoaDto
     @PutMapping(value = "/{id}")
     public ResponseEntity updatePessoa(@PathVariable("id") Long id, @RequestBody @Valid PessoaDto pessoaDto) throws IdNaoEncontradoException {
 
@@ -81,7 +94,7 @@ public class CadastroController {
         pessoaDtoAtual.setNome(pessoaDto.getNome());
         pessoaDtoAtual.setCpf(pessoaDto.getCpf());
         pessoaDtoAtual.setIdade(pessoaDto.getIdade());
-
+        pessoaDtoAtual.setGenero(pessoaDto.getGenero());
         repository.save(pessoaDtoAtual);
         return ResponseEntity.ok().build();
     }
